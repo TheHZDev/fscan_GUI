@@ -769,6 +769,7 @@ class GUI_fscan(wx.Frame):
         'single_ip': '', 'ip_from_file': '',
         'single_url': '', 'url_from_file': ''
     }
+    cache_window = []
     # 公共const变量
     const_wx_ask = wx.YES_NO | wx.ICON_QUESTION
     const_wx_openFile = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
@@ -779,25 +780,24 @@ class GUI_fscan(wx.Frame):
     const_label_no_config = '未设置'
     const_label_show_or_modify = '查看/更改'
     const_label_add = '增加'
-    const_ask_yesORno = '\n单击“是”，继续修改。\n单击“否”，取消修改操作。'
     const_input_PortScan = "请输入端口：\n不同的端口可用英文逗号(,)分开，或者用连接符(-)连接。"
-    const_msg_ShowPort = "当前的端口信息为\n%s" + const_ask_yesORno
+    const_msg_ShowPort = "当前的端口信息为\n%s" + '\n单击“是”，继续修改。\n单击“否”，取消修改操作。'
     const_input_Url = "请输入URL地址："
-    const_msg_ShowSingleUrl = "当前待扫描的URL是：\n%s" + const_ask_yesORno
+    const_msg_ShowSingleUrl = "当前待扫描的URL是：\n%s" + '\n单击“是”，继续修改。\n单击“否”，取消修改操作。'
     const_input_IP = "请输入IP地址及其子网（用/隔开IP地址和子网）："
-    const_msg_ShowSingleIP = "当前待扫描的IP地址是：\n%s" + const_ask_yesORno
-    const_msg_CommonInputFileShow = "%s的导入路径是：\n%s" + const_ask_yesORno
-    const_msg_CommonOutputFileShow = "%s的保存路径是：\n%s" + const_ask_yesORno
+    const_msg_ShowSingleIP = "当前待扫描的IP地址是：\n%s" + '\n单击“是”，继续修改。\n单击“否”，取消修改操作。'
+    const_msg_CommonInputFileShow = "%s的导入路径是：\n%s" + '\n单击“是”，继续修改。\n单击“否”，取消修改操作。'
+    const_msg_CommonOutputFileShow = "%s的保存路径是：\n%s" + '\n单击“是”，继续修改。\n单击“否”，取消修改操作。'
     const_input_Proxy = "请输入要使用的自定义HTTP代理："
-    const_msg_ShowProxy = "当前的HTTP代理为：\n%s" + const_ask_yesORno
+    const_msg_ShowProxy = "当前的HTTP代理为：\n%s" + '\n单击“是”，继续修改。\n单击“否”，取消修改操作。'
     const_input_SSHCommand = "请输入SSH爆破成功后要执行的命令：\n（多个命令用英文分号区隔）"
-    const_msg_ShowSSHCommand = "SSH爆破成功后执行以下命令：\n%s" + const_ask_yesORno
+    const_msg_ShowSSHCommand = "SSH爆破成功后执行以下命令：\n%s" + '\n单击“是”，继续修改。\n单击“否”，取消修改操作。'
     const_input_SMBDomain = "请输入SMB爆破时使用的参考域名："
-    const_msg_ShowSMBDomain = "当前使用的SMB爆破域名为：\n%s" + const_ask_yesORno
+    const_msg_ShowSMBDomain = "当前使用的SMB爆破域名为：\n%s" + '\n单击“是”，继续修改。\n单击“否”，取消修改操作。'
     const_input_RemotePath = "请输入爆破时使用的SMB/FCGI路径："
-    const_msg_ShowRemotePath = "当前使用的SMB/FCGI路径为：\n%s" + const_ask_yesORno
+    const_msg_ShowRemotePath = "当前使用的SMB/FCGI路径为：\n%s" + '\n单击“是”，继续修改。\n单击“否”，取消修改操作。'
     const_input_Cookies = "请输入Web扫描时使用的自定义Cookies字符串："
-    const_msg_ShowCookies = "当前Web扫描所使用的自定义Cookie是：\n%s" + const_ask_yesORno
+    const_msg_ShowCookies = "当前Web扫描所使用的自定义Cookie是：\n%s" + '\n单击“是”，继续修改。\n单击“否”，取消修改操作。'
     const_input_nc_Shell = "请输入Redis未授权写入Crontab反弹Shell的目标IP和端口："
     const_msg_ShowNCShell = "当前NC反弹的目的地址是：\n%s"
 
@@ -972,13 +972,21 @@ class GUI_fscan(wx.Frame):
             tVar = subprocess.run(command_str, capture_output=showLogAfterFinish, timeout=forceTimeout,
                                   encoding='UTF-8')
             if showLogAfterFinish:
-                from ShowExecuteLogs import ShowExecuteLog
-                ShowExecuteLog(self, tVar.stdout + '\n' + '-' * 10 + '\n' + tVar.stderr, command_str).Show()
+                if tVar.returncode == 0:
+                    output = tVar.stdout
+                else:
+                    output = tVar.stderr
+                wx.CallAfter(self.showExecuteLog, output, command_str)
         except subprocess.TimeoutExpired:
             wx.MessageDialog(self, '扫描因达到预定时间 %d 秒还未完成而终止！' % forceTimeout, '扫描失败',
                              wx.ICON_ERROR | wx.OK).ShowModal()
         finally:
             pass
+
+    def showExecuteLog(self, Logs: str, Command: str):
+        from ShowExecuteLogs import ShowExecuteLog
+        tWin = ShowExecuteLog(self, Logs, Command)
+        tWin.Show()
 
     def simpleEnableLink(self, obj1: wx.CheckBox, obj2: wx.Control, register: str = ''):
         """这是一个简单的链式反应，obj1为判断信号，obj2和register为后续动作（obj2启用/禁用）"""
@@ -1104,6 +1112,7 @@ class GUI_fscan(wx.Frame):
             self.fscan_execute_path = executePath
             Thread(target=self.thread_DetectFSCANVersion).start()
             self.ExecuteCheckTaskButton.Enable()
+            self.updateUI()
         event.Skip()
 
     def SelectFSCANEXEPathButtonOnEnterWindow(self, event):
@@ -1491,12 +1500,12 @@ class GUI_fscan(wx.Frame):
         event.Skip()
 
     def IsNoPOCModeOnCheckBox(self, event):
-        self.global_run_config['noPOCScan'] = self.IsNoPOCMode.GetValue()
+        self.global_enable_config['noPOCScan'] = self.IsNoPOCMode.GetValue()
         self.updateUI()
         event.Skip()
 
     def IsNoBruteExploitOnCheckBox(self, event):
-        self.global_run_config['noPasswdBrute'] = self.IsNoPOCMode.GetValue()
+        self.global_enable_config['noPasswdBrute'] = self.IsNoBruteExploit.GetValue()
         self.updateUI()
         event.Skip()
 

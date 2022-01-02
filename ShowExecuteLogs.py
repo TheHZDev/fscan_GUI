@@ -11,7 +11,7 @@ class ShowExecuteLog(wx.Frame):
 
         bSizer4 = wx.BoxSizer(wx.VERTICAL)
 
-        self.ShowLogs = wx.TextCtrl(self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size(630, 410),
+        self.ShowLogs = wx.TextCtrl(self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size(630, 400),
                                     wx.TE_AUTO_URL | wx.TE_CHARWRAP | wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_RICH2)
         bSizer4.Add(self.ShowLogs, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
 
