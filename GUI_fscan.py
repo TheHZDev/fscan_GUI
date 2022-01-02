@@ -1,7 +1,7 @@
+import subprocess
 from os.path import isfile
 from threading import Thread
 
-import subprocess
 import wx
 
 """
@@ -805,11 +805,141 @@ class GUI_fscan(wx.Frame):
     def buildExecutePath(self) -> str:
         if len(self.fscan_execute_path) < 1:
             return '未指定fscan可执行文件路径！'
-        pass
+        para_list = ['"%s"' % self.fscan_execute_path]
+        # 匿名函数化简
+        get_target = lambda x: self.global_target_config.get(x, '')
+        valid_target = lambda x: len(get_target(x)) > 0
+        get_run = lambda x: self.global_run_config.get(x)
+        valid_run = lambda x: len(get_run(x)) > 0
+        get_enable = lambda x: self.global_enable_config.get(x, False)
+        # URL扫描
+        if self.SingleURLRadio.GetValue() and valid_target('single_url'):
+            para_list.append('-u "%s"' % get_target('single_url'))
+        elif self.MultiURLRadio.GetValue() and valid_target('url_from_file'):
+            para_list.append('-uf "%s"' % get_target('url_from_file'))
+        # IP扫描
+        if self.SingleIPRadio.GetValue() and valid_target('single_ip'):
+            para_list.append('-h "%s"' % get_target('single_ip'))
+        elif self.MultiIPRadio.GetValue() and valid_target('ip_from_file'):
+            para_list.append('-hf "%s"' % get_target('ip_from_file'))
+        # 扫描模式
+        if get_enable('module'):
+            para_list.append('-m %s' % self.SpecialPortScanChoice.GetStringSelection())
+        # 主要端口
+        if get_enable('mainPort') and valid_run('mainPort'):
+            para_list.append('-p "%s"' % get_run('mainPort'))
+        # 追加端口
+        if get_enable('extraPort') and valid_run('extraPort'):
+            para_list.append('-pa "%s"' % get_run('extraPort'))
+        # 排除端口
+        if get_enable('excludePort') and valid_run('excludePort'):
+            para_list.append('-pn "%s"' % get_run('excludePort'))
+        # 不禁用POC扫描时
+        if not get_enable('noPOCScan'):
+            # 指定特定POC
+            if get_enable('specialPOC'):
+                para_list.append('-pocname "%s"' % self.SpecialPOCNameChoice.GetStringSelection())
+            # 指定POC扫描速率
+            if get_enable('pocScanSpeed'):
+                para_list.append('-num %d' % get_run('pocScanSpeed'))
+        else:
+            para_list.append('-nopoc')
+        # 多线程
+        if get_enable('threads'):
+            para_list.append('-t %d' % get_run('threads'))
+        # 端口扫描超时
+        if get_enable('portScanTimeout'):
+            para_list.append('-time %d' % get_run('portScanTimeout'))
+        # Web扫描超时
+        if get_enable('webScanTimeout'):
+            para_list.append('-wt %d' % get_run('webScanTimeout'))
+        # 使用自定义Cookies
+        if get_enable('useCookies') and valid_run('useCookies'):
+            para_list.append('-cookie "%s"' % get_run('useCookies'))
+        # 日志存放
+        if get_enable('dontSaveLog'):
+            para_list.append('-no')
+        elif get_enable('useLogPath') and valid_run('useLogPath'):
+            para_list.append('-o "%s"' % get_run('useLogPath'))
+        # 存活探测
+        if self.LiveDetectOptions.GetSelection() == 1:
+            para_list.append('-ping')
+        elif self.LiveDetectOptions.GetSelection() == 2:
+            para_list.append('-np')
+        # 代理设置
+        if get_enable('useSystemProxy'):
+            from urllib.request import getproxies
+            proxies_cache = getproxies()
+            if 'http' in proxies_cache.keys():
+                para_list.append('-proxy "%s"' % proxies_cache.get('http'))
+        elif get_enable('useUserProxy') and valid_run('useUserProxy'):
+            para_list.append('-proxy "%s"' % get_run('useUserProxy'))
+        # Redis利用设置
+        if get_enable('useRedis'):
+            if valid_run('redisPubKeyPath'):
+                para_list.append('-rf "%s"' % get_run('redisPubKeyPath'))
+                if valid_run('redisPriKeyPath'):
+                    para_list.append('-sshkey "%s"' % get_run('redisPriKeyPath'))
+            if valid_run('redisShellIPAddress'):
+                para_list.append('-rs %s' % get_run('redisShellIPAddress'))
+        # FCGI/SMB
+        if get_enable('remotePath') and valid_run('remotePath'):
+            para_list.append('-path "%s"' % get_run('remotePath'))
+        # 密码暴破
+        if not get_enable('noPasswdBrute'):
+            if get_enable('smbDomain') and valid_run('smbDomain'):
+                para_list.append('-domain "%s"' % get_run('smbDomain'))
+            if get_enable('useUserBook') and valid_run('useUserBook'):
+                para_list.append('-userf "%s"' % get_run('useUserBook'))
+            if get_enable('usePasswdBook') and valid_run('usePasswdBook'):
+                para_list.append('-pwdf "%s"' % get_run('usePasswdBook'))
+            if get_enable('remoteSSHCommand') and valid_run('remoteSSHCommand'):
+                para_list.append('-c "%s"' % get_run('remoteSSHCommand'))
+        else:
+            para_list.append('-nobr')
+        return ' '.join(para_list)
 
     def updateUI(self):
+        if self.global_enable_config['noPOCScan']:
+            # 禁用POC探测
+            self.IsSpecialPOCScanSpeed.Disable()
+            self.InputPOCScanSpeedTextEntry.Disable()
+            # 禁用POC探测速度选项
+            self.IsSpecialPOCName.Disable()
+            self.SpecialPOCNameChoice.Disable()
+            # 禁用POC模糊选择器
+        else:
+            self.IsSpecialPOCScanSpeed.Enable()
+            if self.global_enable_config['pocScanSpeed']:
+                self.InputPOCScanSpeedTextEntry.Enable()
+            self.IsSpecialPOCName.Enable()
+            if self.global_enable_config['specialPOC']:
+                self.SpecialPOCNameChoice.Enable()
+        # POC启用/禁用
+        if self.global_enable_config['noPasswdBrute']:
+            self.IsSpecialSMBDomain.Disable()
+            self.InputSpecialDomainSMBButton.Disable()
+            self.IsInputUserNameFromFile.Disable()
+            self.InputUserFromFileButton.Disable()
+            self.IsInputPasswdFromFile.Disable()
+            self.InputPasswdFromFileButton.Disable()
+            self.IsSSHCommandAfterSuccess.Disable()
+            self.InputSSHCommand.Disable()
+        else:
+            self.IsSpecialSMBDomain.Enable()
+            if self.global_enable_config['smbDomain']:
+                self.InputSpecialDomainSMBButton.Enable()
+            self.IsInputUserNameFromFile.Enable()
+            if self.global_enable_config['useUserBook']:
+                self.InputUserFromFileButton.Enable()
+            self.IsInputPasswdFromFile.Enable()
+            if self.global_enable_config['usePasswdBook']:
+                self.InputPasswdFromFileButton.Enable()
+            self.IsSSHCommandAfterSuccess.Enable()
+            if self.global_enable_config['remoteSSHCommand']:
+                self.InputSSHCommand.Enable()
+        # 禁用密码暴破
         self.ShowFSCANParaText.SetValue(self.buildExecutePath())
-        pass
 
     def thread_DetectFSCANVersion(self):
         if not (isfile(self.fscan_execute_path) and self.fscan_execute_path.endswith('.exe')):
@@ -934,7 +1064,7 @@ class GUI_fscan(wx.Frame):
         if not isinstance(toRWTextEntry, wx.TextEntry) or toRWKey not in self.global_run_config.keys():
             return
         tStr: str = toRWTextEntry.GetValue()
-        if tStr.isdigit():
+        if tStr.isdigit() and int(tStr) > 0:
             self.global_run_config[toRWKey] = int(tStr)
             self.updateUI()
         else:
