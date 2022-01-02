@@ -956,6 +956,30 @@ class GUI_fscan(wx.Frame):
         if len(self.fscan_version) > 0:
             self.SelectFSCANEXEPathButton.SetLabel('已检测的fscan版本：%s' % self.fscan_version)
 
+    def thread_StartScanTask(self):
+        self.Disable()
+        command_str = self.buildExecutePath()
+        showLogAfterFinish = False
+        if self.global_enable_config.get('showLogAfterFinish'):
+            showLogAfterFinish = True
+        forceTimeout = None
+        if self.global_enable_config.get('forceExecuteTimeout') and \
+                self.global_run_config.get('forceExecuteTimeout') > 0:
+            forceTimeout = self.global_run_config.get('forceExecuteTimeout')
+        self.Enable()
+        # 快照建立完成，现在可以释放了
+        try:
+            tVar = subprocess.run(command_str, capture_output=showLogAfterFinish, timeout=forceTimeout,
+                                  encoding='UTF-8')
+            if showLogAfterFinish:
+                from ShowExecuteLogs import ShowExecuteLog
+                ShowExecuteLog(self, tVar.stdout + '\n' + '-' * 10 + '\n' + tVar.stderr, command_str).Show()
+        except subprocess.TimeoutExpired:
+            wx.MessageDialog(self, '扫描因达到预定时间 %d 秒还未完成而终止！' % forceTimeout, '扫描失败',
+                             wx.ICON_ERROR | wx.OK).ShowModal()
+        finally:
+            pass
+
     def simpleEnableLink(self, obj1: wx.CheckBox, obj2: wx.Control, register: str = ''):
         """这是一个简单的链式反应，obj1为判断信号，obj2和register为后续动作（obj2启用/禁用）"""
         if obj1.GetValue():
@@ -1093,6 +1117,7 @@ class GUI_fscan(wx.Frame):
         event.Skip()
 
     def ExecuteCheckTaskButtonOnButtonClick(self, event):
+        Thread(target=self.thread_StartScanTask).start()
         event.Skip()
 
     def IsSpecialPortScanModeOnCheckBox(self, event):
@@ -1530,3 +1555,9 @@ class GUI_fscan(wx.Frame):
         self.commonButtonSetLabel('run', 'redisShellIPAddress', self.InputShellIPAndPortButton,
                                   'Shell->' + self.global_run_config['redisShellIPAddress'], '输入NC反弹IP和端口')
         event.Skip()
+
+
+if __name__ == '__main__':
+    mainAPP = wx.App()
+    GUI_fscan().Show()
+    mainAPP.MainLoop()
