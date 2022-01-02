@@ -1,3 +1,7 @@
+from os.path import isfile
+from threading import Thread
+
+import subprocess
 import wx
 
 """
@@ -115,7 +119,7 @@ class GUI_fscan(wx.Frame):
 
         gSizer2.Add(self.IsUseSpecialScanPortMode, 0, wx.ALL | wx.EXPAND, 5)
 
-        self.InputMainPortButton = wx.Button(sbSizer1.GetStaticBox(), wx.ID_ANY, u"空", wx.DefaultPosition,
+        self.InputMainPortButton = wx.Button(sbSizer1.GetStaticBox(), wx.ID_ANY, u"无", wx.DefaultPosition,
                                              wx.DefaultSize, 0)
         self.InputMainPortButton.Enable(False)
 
@@ -129,7 +133,7 @@ class GUI_fscan(wx.Frame):
 
         gSizer2.Add(self.IsAddExtraPortScan, 0, wx.ALL | wx.EXPAND, 5)
 
-        self.InputExtraPortButton = wx.Button(sbSizer1.GetStaticBox(), wx.ID_ANY, u"空", wx.DefaultPosition,
+        self.InputExtraPortButton = wx.Button(sbSizer1.GetStaticBox(), wx.ID_ANY, u"无", wx.DefaultPosition,
                                               wx.DefaultSize, 0)
         self.InputExtraPortButton.Enable(False)
 
@@ -143,7 +147,7 @@ class GUI_fscan(wx.Frame):
 
         gSizer2.Add(self.IsExcludePort, 0, wx.ALL | wx.EXPAND, 5)
 
-        self.InputExcludePortButton = wx.Button(sbSizer1.GetStaticBox(), wx.ID_ANY, u"空", wx.DefaultPosition,
+        self.InputExcludePortButton = wx.Button(sbSizer1.GetStaticBox(), wx.ID_ANY, u"无", wx.DefaultPosition,
                                                 wx.DefaultSize, 0)
         self.InputExcludePortButton.Enable(False)
 
@@ -278,13 +282,14 @@ class GUI_fscan(wx.Frame):
                                          wx.DefaultSize, 0)
         gSizer7.Add(self.IsUserCookies, 0, wx.ALL | wx.EXPAND, 5)
 
-        self.InputUserCookies = wx.Button(sbSizer7.GetStaticBox(), wx.ID_ANY, u"无", wx.DefaultPosition, wx.DefaultSize,
-                                          0)
-        self.InputUserCookies.SetFont(
+        self.InputUserCookiesButton = wx.Button(sbSizer7.GetStaticBox(), wx.ID_ANY, u"无", wx.DefaultPosition,
+                                                wx.DefaultSize,
+                                                0)
+        self.InputUserCookiesButton.SetFont(
             wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, wx.EmptyString))
-        self.InputUserCookies.Enable(False)
+        self.InputUserCookiesButton.Enable(False)
 
-        gSizer7.Add(self.InputUserCookies, 0, wx.ALL | wx.EXPAND, 5)
+        gSizer7.Add(self.InputUserCookiesButton, 0, wx.ALL | wx.EXPAND, 5)
 
         sbSizer7.Add(gSizer7, 1, wx.EXPAND, 5)
 
@@ -470,7 +475,7 @@ class GUI_fscan(wx.Frame):
 
         gSizer6.Add(self.IsSpecialSMBDomain, 0, wx.ALL | wx.EXPAND, 5)
 
-        self.InputSpecialDomainSMBButton = wx.Button(sbSizer5.GetStaticBox(), wx.ID_ANY, u"空", wx.DefaultPosition,
+        self.InputSpecialDomainSMBButton = wx.Button(sbSizer5.GetStaticBox(), wx.ID_ANY, u"无", wx.DefaultPosition,
                                                      wx.DefaultSize, 0)
         self.InputSpecialDomainSMBButton.SetFont(
             wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, wx.EmptyString))
@@ -518,7 +523,7 @@ class GUI_fscan(wx.Frame):
 
         gSizer6.Add(self.IsSSHCommandAfterSuccess, 0, wx.ALL | wx.EXPAND, 5)
 
-        self.InputSSHCommand = wx.Button(sbSizer5.GetStaticBox(), wx.ID_ANY, u"空", wx.DefaultPosition, wx.DefaultSize,
+        self.InputSSHCommand = wx.Button(sbSizer5.GetStaticBox(), wx.ID_ANY, u"无", wx.DefaultPosition, wx.DefaultSize,
                                          0)
         self.InputSSHCommand.SetFont(
             wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, wx.EmptyString))
@@ -534,7 +539,7 @@ class GUI_fscan(wx.Frame):
 
         gSizer6.Add(self.IsPathAfterSuccess, 0, wx.ALL | wx.EXPAND, 5)
 
-        self.InputSMBOrFCGIPathButton = wx.Button(sbSizer5.GetStaticBox(), wx.ID_ANY, u"空", wx.DefaultPosition,
+        self.InputSMBOrFCGIPathButton = wx.Button(sbSizer5.GetStaticBox(), wx.ID_ANY, u"无", wx.DefaultPosition,
                                                   wx.DefaultSize, 0)
         self.InputSMBOrFCGIPathButton.SetFont(
             wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, wx.EmptyString))
@@ -592,14 +597,14 @@ class GUI_fscan(wx.Frame):
 
         sbSizer6.Add(self.InputSSHPublicKeyButton, 0, wx.ALL | wx.EXPAND, 5)
 
-        self.InputSSHPrivaryKeyButton = wx.Button(sbSizer6.GetStaticBox(), wx.ID_ANY, u"SSH私钥", wx.DefaultPosition,
+        self.InputSSHPrivateKeyButton = wx.Button(sbSizer6.GetStaticBox(), wx.ID_ANY, u"SSH私钥", wx.DefaultPosition,
                                                   wx.DefaultSize, 0)
-        self.InputSSHPrivaryKeyButton.SetFont(
+        self.InputSSHPrivateKeyButton.SetFont(
             wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, wx.EmptyString))
-        self.InputSSHPrivaryKeyButton.Enable(False)
-        self.InputSSHPrivaryKeyButton.SetToolTip(u"-sshkey string\nssh连接时,指定ssh私钥")
+        self.InputSSHPrivateKeyButton.Enable(False)
+        self.InputSSHPrivateKeyButton.SetToolTip(u"-sshkey string\nssh连接时,指定ssh私钥")
 
-        sbSizer6.Add(self.InputSSHPrivaryKeyButton, 0, wx.ALL | wx.EXPAND, 5)
+        sbSizer6.Add(self.InputSSHPrivateKeyButton, 0, wx.ALL | wx.EXPAND, 5)
 
         self.InputShellIPAndPortButton = wx.Button(sbSizer6.GetStaticBox(), wx.ID_ANY, u"输入NC反弹IP和端口",
                                                    wx.DefaultPosition, wx.DefaultSize, 0)
@@ -659,9 +664,9 @@ class GUI_fscan(wx.Frame):
         self.InputURLFromFileButton.Bind(wx.EVT_ENTER_WINDOW, self.InputURLFromFileButtonOnEnterWindow)
         self.InputURLFromFileButton.Bind(wx.EVT_LEAVE_WINDOW, self.InputURLFromFileButtonOnLeaveWindow)
         self.IsUserCookies.Bind(wx.EVT_CHECKBOX, self.IsUserCookiesOnCheckBox)
-        self.InputUserCookies.Bind(wx.EVT_BUTTON, self.InputUserCookiesOnButtonClick)
-        self.InputUserCookies.Bind(wx.EVT_ENTER_WINDOW, self.InputUserCookiesOnEnterWindow)
-        self.InputUserCookies.Bind(wx.EVT_LEAVE_WINDOW, self.InputUserCookiesOnLeaveWindow)
+        self.InputUserCookiesButton.Bind(wx.EVT_BUTTON, self.InputUserCookiesOnButtonClick)
+        self.InputUserCookiesButton.Bind(wx.EVT_ENTER_WINDOW, self.InputUserCookiesOnEnterWindow)
+        self.InputUserCookiesButton.Bind(wx.EVT_LEAVE_WINDOW, self.InputUserCookiesOnLeaveWindow)
         self.SingleIPRadio.Bind(wx.EVT_RADIOBUTTON, self.SingleIPRadioOnRadioButton)
         self.InputSingleScanIPButton.Bind(wx.EVT_BUTTON, self.InputSingleScanIPButtonOnButtonClick)
         self.InputSingleScanIPButton.Bind(wx.EVT_ENTER_WINDOW, self.InputSingleScanIPButtonOnEnterWindow)
@@ -717,301 +722,681 @@ class GUI_fscan(wx.Frame):
         self.InputSSHPublicKeyButton.Bind(wx.EVT_BUTTON, self.InputSSHPublicKeyButtonOnButtonClick)
         self.InputSSHPublicKeyButton.Bind(wx.EVT_ENTER_WINDOW, self.InputSSHPublicKeyButtonOnEnterWindow)
         self.InputSSHPublicKeyButton.Bind(wx.EVT_LEAVE_WINDOW, self.InputSSHPublicKeyButtonOnLeaveWindow)
-        self.InputSSHPrivaryKeyButton.Bind(wx.EVT_BUTTON, self.InputSSHPrivaryKeyButtonOnButtonClick)
-        self.InputSSHPrivaryKeyButton.Bind(wx.EVT_ENTER_WINDOW, self.InputSSHPrivaryKeyButtonOnEnterWindow)
-        self.InputSSHPrivaryKeyButton.Bind(wx.EVT_LEAVE_WINDOW, self.InputSSHPrivaryKeyButtonOnLeaveWindow)
+        self.InputSSHPrivateKeyButton.Bind(wx.EVT_BUTTON, self.InputSSHPrivateKeyButtonOnButtonClick)
+        self.InputSSHPrivateKeyButton.Bind(wx.EVT_ENTER_WINDOW, self.InputSSHPrivateKeyButtonOnEnterWindow)
+        self.InputSSHPrivateKeyButton.Bind(wx.EVT_LEAVE_WINDOW, self.InputSSHPrivateKeyButtonOnLeaveWindow)
         self.InputShellIPAndPortButton.Bind(wx.EVT_BUTTON, self.InputShellIPAndPortButtonOnButtonClick)
         self.InputShellIPAndPortButton.Bind(wx.EVT_ENTER_WINDOW, self.InputShellIPAndPortButtonOnEnterWindow)
         self.InputShellIPAndPortButton.Bind(wx.EVT_LEAVE_WINDOW, self.InputShellIPAndPortButtonOnLeaveWindow)
 
+        # 预定义Radio组内联调
+        self.radioGroup_url = [{'radio': self.SingleURLRadio, 'obj': [self.InputSingleScanURLButton]},
+                               {'radio': self.MultiURLRadio, 'obj': [self.InputURLFromFileButton]}]
+        self.radioGroup_ip = [{'radio': self.SingleIPRadio, 'obj': [self.InputSingleScanIPButton]},
+                              {'radio': self.MultiIPRadio, 'obj': [self.InputIPAddressFromFilePathButton]}]
+        self.radioGroup_log = [{'radio': self.DontSaveLogRadio, 'key': 'dontSaveLog'},
+                               {'radio': self.DefaultSaveLogRadio},
+                               {'radio': self.UseUserLogPathRadio, 'obj': [self.InputUserLogPathButton],
+                                'key': 'useLogPath'}]
+        self.radioGroup_proxy = [{'radio': self.NoProxyRadio},
+                                 {'radio': self.UseSystemProxyRadio, 'key': 'useSystemProxy'},
+                                 {'radio': self.UseUserProxyRadio, 'key': 'useUserProxy',
+                                  'obj': [self.InputUserProxyButton]}]
+
     def __del__(self):
         pass
 
+    # 公共缓存设置
+    fscan_execute_path = ''
+    fscan_version = ''
+    global_run_config = {
+        'mainPort': '', 'extraPort': '', 'excludePort': '',
+        'threads': 600, 'portScanTimeout': 3, 'webScanTimeout': 5, 'useCookies': '',
+        'useLogPath': '', 'forceExecuteTimeout': -1,
+        'useUserProxy': '', 'smbDomain': '', 'useUserBook': '',
+        'usePasswdBook': '', 'remoteSSHCommand': '', 'remotePath': '', 'pocScanSpeed': 20,
+        'redisPubKeyPath': '', 'redisPriKeyPath': '', 'redisShellIPAddress': ''
+    }
+    global_enable_config = {
+        'module': False, 'mainPort': False, 'extraPort': False, 'excludePort': False, 'specialPOC': False,
+        'threads': False, 'portScanTimeout': False, 'webScanTimeout': False, 'useCookies': False,
+        'dontSaveLog': False, 'useLogPath': False, 'forceExecuteTimeout': False, 'showLogAfterFinish': False,
+        'useSystemProxy': False, 'useUserProxy': False, 'smbDomain': False, 'useUserBook': False,
+        'usePasswdBook': False, 'remoteSSHCommand': False, 'remotePath': False, 'pocScanSpeed': False,
+        'noPOCScan': False, 'noPasswdBrute': False, 'useRedis': False
+    }
+    global_target_config = {
+        'single_ip': '', 'ip_from_file': '',
+        'single_url': '', 'url_from_file': ''
+    }
+    # 公共const变量
+    const_wx_ask = wx.YES_NO | wx.ICON_QUESTION
+    const_wx_openFile = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
+    const_wx_saveFile = wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT
+    const_label_not_null = '可用'
+    const_label_null = '无'
+    const_label_no_input = '导入...'
+    const_label_no_config = '未设置'
+    const_label_show_or_modify = '查看/更改'
+    const_label_add = '增加'
+    const_ask_yesORno = '\n单击“是”，继续修改。\n单击“否”，取消修改操作。'
+    const_input_PortScan = "请输入端口：\n不同的端口可用英文逗号(,)分开，或者用连接符(-)连接。"
+    const_msg_ShowPort = "当前的端口信息为\n%s" + const_ask_yesORno
+    const_input_Url = "请输入URL地址："
+    const_msg_ShowSingleUrl = "当前待扫描的URL是：\n%s" + const_ask_yesORno
+    const_input_IP = "请输入IP地址及其子网（用/隔开IP地址和子网）："
+    const_msg_ShowSingleIP = "当前待扫描的IP地址是：\n%s" + const_ask_yesORno
+    const_msg_CommonInputFileShow = "%s的导入路径是：\n%s" + const_ask_yesORno
+    const_msg_CommonOutputFileShow = "%s的保存路径是：\n%s" + const_ask_yesORno
+    const_input_Proxy = "请输入要使用的自定义HTTP代理："
+    const_msg_ShowProxy = "当前的HTTP代理为：\n%s" + const_ask_yesORno
+    const_input_SSHCommand = "请输入SSH爆破成功后要执行的命令：\n（多个命令用英文分号区隔）"
+    const_msg_ShowSSHCommand = "SSH爆破成功后执行以下命令：\n%s" + const_ask_yesORno
+    const_input_SMBDomain = "请输入SMB爆破时使用的参考域名："
+    const_msg_ShowSMBDomain = "当前使用的SMB爆破域名为：\n%s" + const_ask_yesORno
+    const_input_RemotePath = "请输入爆破时使用的SMB/FCGI路径："
+    const_msg_ShowRemotePath = "当前使用的SMB/FCGI路径为：\n%s" + const_ask_yesORno
+    const_input_Cookies = "请输入Web扫描时使用的自定义Cookies字符串："
+    const_msg_ShowCookies = "当前Web扫描所使用的自定义Cookie是：\n%s" + const_ask_yesORno
+    const_input_nc_Shell = "请输入Redis未授权写入Crontab反弹Shell的目标IP和端口："
+    const_msg_ShowNCShell = "当前NC反弹的目的地址是：\n%s"
+
+    # 主要应用函数
+    def buildExecutePath(self) -> str:
+        if len(self.fscan_execute_path) < 1:
+            return '未指定fscan可执行文件路径！'
+        pass
+
+    def updateUI(self):
+        self.ShowFSCANParaText.SetValue(self.buildExecutePath())
+        pass
+
+    def thread_DetectFSCANVersion(self):
+        if not (isfile(self.fscan_execute_path) and self.fscan_execute_path.endswith('.exe')):
+            return
+        self.fscan_version = ''
+        runResult = subprocess.run('"%s" --version' % self.fscan_execute_path, capture_output=True,
+                                   encoding='UTF-8')
+        # 这应该很快就结束，--version实际上不能为fscan所识别
+        # 由于非正常终止，程序返回了出错代码（测试时为2）
+        for line in runResult.stderr.splitlines():
+            if 'version' in line:
+                self.fscan_version = line.replace(':', '').split()[-1]
+                break
+        if len(self.fscan_version) > 0:
+            self.SelectFSCANEXEPathButton.SetLabel('已检测的fscan版本：%s' % self.fscan_version)
+
+    def simpleEnableLink(self, obj1: wx.CheckBox, obj2: wx.Control, register: str = ''):
+        """这是一个简单的链式反应，obj1为判断信号，obj2和register为后续动作（obj2启用/禁用）"""
+        if obj1.GetValue():
+            obj2.Enable()
+            if register in self.global_enable_config.keys():
+                self.global_enable_config[register] = True
+        else:
+            obj2.Disable()
+            if register in self.global_enable_config.keys():
+                self.global_enable_config[register] = False
+        self.updateUI()
+
+    def commonInputTextEntryDialog(self, toSetButton: wx.Button, toRWDictName: str, toRWKey: str, toShowMsg: str,
+                                   toShowInputHint: str):
+        """
+        通用需要对话框的函数例程\n
+        :param toSetButton: 待设置标题的按钮
+        :param toRWDictName: 待读写的字典/列表
+        :param toRWKey: 字典的键/列表索引
+        :param toShowMsg: 显示在询问列表中的字段
+        :param toShowInputHint: 显示在输入框的字段
+        """
+        if toRWDictName == 'run':
+            toRWDict = self.global_run_config
+        else:
+            toRWDict = self.global_target_config
+        if len(toRWDict[toRWKey]) > 0:
+            askDialog = wx.MessageDialog(self, toShowMsg % toRWDict[toRWKey], '信息', self.const_wx_ask)
+            if askDialog.ShowModal() == wx.ID_NO:
+                return
+        inputDialog = wx.TextEntryDialog(self, toShowInputHint, '输入', toRWDict[toRWKey])
+        inputDialog.ShowModal()
+        toRWDict[toRWKey] = inputDialog.GetValue().strip()
+        self.commonButtonSetLabel(toRWDictName, toRWKey, toSetButton, self.const_label_show_or_modify,
+                                  self.const_label_add)
+        self.updateUI()
+
+    def commonInputFileDialog(self, toSetButton: wx.Button, toRWDictName: str, toRWKey: str,
+                              toShowMsgArgs: str, dialogMode: str = 'open'):
+        """这个只考虑文件对话框"""
+        if toRWDictName == 'run':
+            toRWDict = self.global_run_config
+        else:
+            toRWDict = self.global_target_config
+        if dialogMode == 'save':
+            toShowMsg = self.const_msg_CommonOutputFileShow
+            fileMode = self.const_wx_saveFile
+            dialogMsg = '保存'
+        else:
+            toShowMsg = self.const_msg_CommonInputFileShow
+            fileMode = self.const_wx_openFile
+            dialogMsg = '打开'
+        if len(toRWDict[toRWKey]) > 0:
+            askDialog = wx.MessageDialog(self, toShowMsg % (toShowMsgArgs, toRWDict[toRWKey]), '信息', self.const_wx_ask)
+            if askDialog.ShowModal() == wx.ID_NO:
+                return
+        fileDialog = wx.FileDialog(self, dialogMsg, wildcard='文本文件|*.txt|所有文件|*.*', style=fileMode)
+        fileDialog.ShowModal()
+        if len(fileDialog.GetPath().strip()) > 0:
+            toRWDict[toRWKey] = fileDialog.GetPath().strip()
+            self.commonButtonSetLabel(toRWDictName, toRWKey, toSetButton, self.const_label_show_or_modify,
+                                      self.const_label_add)
+            self.updateUI()
+
+    def commonButtonSetLabel(self, toRWDictName: str, toReadKey: str, toSetButton: wx.Button, trueStr: str = '',
+                             falseStr: str = ''):
+        """根据字段读取运行配置（简单判断长度），然后为给定的按钮设置标牌"""
+        if toRWDictName == 'run':
+            toRWDict = self.global_run_config
+        elif toRWDictName == 'enable':
+            toRWDict = self.global_enable_config
+        else:
+            toRWDict = self.global_target_config
+        if toReadKey not in toRWDict.keys() or not isinstance(toSetButton, wx.Button):
+            return
+        if len(toRWDict[toReadKey]) > 0:
+            if len(trueStr) > 0:
+                toSetButton.SetLabel(trueStr)
+        elif len(falseStr) > 0:
+            toSetButton.SetLabel(falseStr)
+
+    def radioGroupUpdate(self, radioGroup: list, setValueIndex: int):
+        """radio组内联调，负责处理事务组单元"""
+        try:
+            for radioID in range(len(radioGroup)):
+                if radioID != setValueIndex:
+                    radioGroup[radioID].get('radio').SetValue(False)
+                if 'obj' in radioGroup[radioID].keys():
+                    for objUnit in radioGroup[radioID].get('obj'):
+                        if isinstance(objUnit, wx.Control):
+                            if radioID == setValueIndex:
+                                objUnit.Enable()
+                            else:
+                                objUnit.Disable()
+                if 'key' in radioGroup[radioID].keys():
+                    if radioGroup[radioID].get('key') in self.global_enable_config.keys():
+                        if radioID != setValueIndex:
+                            self.global_enable_config[radioGroup[radioID].get('key')] = False
+                        else:
+                            self.global_enable_config[radioGroup[radioID].get('key')] = True
+        finally:
+            pass
+
+    def commonTextEntryOnKillFocus(self, toRWKey: str, toRWTextEntry: wx.TextEntry):
+        """本次读写的输入框都只要求输入正整数，因此可以极大简化"""
+        if not isinstance(toRWTextEntry, wx.TextEntry) or toRWKey not in self.global_run_config.keys():
+            return
+        tStr: str = toRWTextEntry.GetValue()
+        if tStr.isdigit():
+            self.global_run_config[toRWKey] = int(tStr)
+            self.updateUI()
+        else:
+            toRWTextEntry.SetValue(str(self.global_run_config[toRWKey]))
+
     # Virtual event handlers, override them in your derived class
     def SelectFSCANEXEPathButtonOnButtonClick(self, event):
+        fileOpenDialog = wx.FileDialog(self, '选择fscan.exe路径', defaultFile='fscan.exe',
+                                       wildcard='fscan主程序|*.exe', style=self.const_wx_openFile)
+        fileOpenDialog.ShowModal()
+        executePath: str = fileOpenDialog.GetPath()
+        if isfile(executePath) and executePath.endswith('.exe'):
+            self.fscan_execute_path = executePath
+            Thread(target=self.thread_DetectFSCANVersion).start()
+            self.ExecuteCheckTaskButton.Enable()
         event.Skip()
 
     def SelectFSCANEXEPathButtonOnEnterWindow(self, event):
+        if len(self.fscan_version) > 0:
+            self.SelectFSCANEXEPathButton.SetLabel('重新选择fscan.exe路径')
         event.Skip()
 
     def SelectFSCANEXEPathButtonOnLeaveWindow(self, event):
+        if len(self.fscan_version) > 0:
+            self.SelectFSCANEXEPathButton.SetLabel('已检测的fscan版本：%s' % self.fscan_version)
         event.Skip()
 
     def ExecuteCheckTaskButtonOnButtonClick(self, event):
         event.Skip()
 
     def IsSpecialPortScanModeOnCheckBox(self, event):
+        self.simpleEnableLink(self.IsSpecialPortScanMode, self.SpecialPortScanChoice, 'module')
         event.Skip()
 
     def SpecialPortScanChoiceOnChoice(self, event):
+        self.updateUI()
         event.Skip()
 
     def IsUseSpecialScanPortModeOnCheckBox(self, event):
+        self.simpleEnableLink(self.IsUseSpecialScanPortMode, self.InputMainPortButton, 'mainPort')
         event.Skip()
 
     def InputMainPortButtonOnButtonClick(self, event):
+        self.commonInputTextEntryDialog(self.InputMainPortButton, 'run', 'mainPort',
+                                        self.const_msg_ShowPort, self.const_input_PortScan)
         event.Skip()
 
     def InputMainPortButtonOnEnterWindow(self, event):
+        self.commonButtonSetLabel('run', 'mainPort', self.InputMainPortButton, self.const_label_show_or_modify,
+                                  self.const_label_add)
         event.Skip()
 
     def InputMainPortButtonOnLeaveWindow(self, event):
+        self.commonButtonSetLabel('run', 'mainPort', self.InputMainPortButton, self.const_label_not_null,
+                                  self.const_label_null)
         event.Skip()
 
     def IsAddExtraPortScanOnCheckBox(self, event):
+        self.simpleEnableLink(self.IsAddExtraPortScan, self.InputExtraPortButton, 'extraPort')
         event.Skip()
 
     def InputExtraPortButtonOnButtonClick(self, event):
+        self.commonInputTextEntryDialog(self.InputExtraPortButton, 'run', 'extraPort',
+                                        self.const_msg_ShowPort, self.const_input_PortScan)
         event.Skip()
 
     def InputExtraPortButtonOnEnterWindow(self, event):
+        self.commonButtonSetLabel('run', 'extraPort', self.InputExtraPortButton, self.const_label_show_or_modify,
+                                  self.const_label_add)
         event.Skip()
 
     def InputExtraPortButtonOnLeaveWindow(self, event):
+        self.commonButtonSetLabel('run', 'extraPort', self.InputExtraPortButton, self.const_label_not_null,
+                                  self.const_label_null)
         event.Skip()
 
     def IsExcludePortOnCheckBox(self, event):
+        self.simpleEnableLink(self.IsExcludePort, self.InputExcludePortButton, 'excludePort')
         event.Skip()
 
     def InputExcludePortButtonOnButtonClick(self, event):
+        self.commonInputTextEntryDialog(self.InputExcludePortButton, 'run', 'excludePort',
+                                        self.const_msg_ShowPort, self.const_input_PortScan)
         event.Skip()
 
     def InputExcludePortButtonOnEnterWindow(self, event):
+        self.commonButtonSetLabel('run', 'excludePort', self.InputExtraPortButton, self.const_label_show_or_modify,
+                                  self.const_label_add)
         event.Skip()
 
     def InputExcludePortButtonOnLeaveWindow(self, event):
+        self.commonButtonSetLabel('run', 'excludePort', self.InputExtraPortButton, self.const_label_not_null,
+                                  self.const_label_null)
         event.Skip()
 
     def IsSpecialPOCNameOnCheckBox(self, event):
+        self.simpleEnableLink(self.IsSpecialPOCName, self.SpecialPOCNameChoice, 'specialPOC')
         event.Skip()
 
     def SpecialPOCNameChoiceOnChoice(self, event):
+        self.updateUI()
         event.Skip()
 
     def IsMultiThreadsOnCheckBox(self, event):
+        self.simpleEnableLink(self.IsMultiThreads, self.InputThreadsIntTextEntry, 'threads')
         event.Skip()
 
     def InputThreadsIntTextEntryOnKillFocus(self, event):
+        self.commonTextEntryOnKillFocus('threads', self.InputThreadsIntTextEntry)
         event.Skip()
 
     def IsPortScanTimeoutOnCheckBox(self, event):
+        self.simpleEnableLink(self.IsPortScanTimeout, self.InputPortScanTimeoutTextEntry, 'portScanTimeout')
         event.Skip()
 
     def InputPortScanTimeoutTextEntryOnKillFocus(self, event):
+        self.commonTextEntryOnKillFocus('portScanTimeout', self.InputPortScanTimeoutTextEntry)
         event.Skip()
 
     def IsWebScanTimeoutOnCheckBox(self, event):
+        self.simpleEnableLink(self.IsWebScanTimeout, self.InputWebScanTimeoutTextEntry, 'webScanTimeout')
         event.Skip()
 
     def InputWebScanTimeoutTextEntryOnKillFocus(self, event):
+        self.commonTextEntryOnKillFocus('webScanTimeout', self.InputWebScanTimeoutTextEntry)
         event.Skip()
 
     def SingleURLRadioOnRadioButton(self, event):
+        self.radioGroupUpdate(self.radioGroup_url, 0)
+        self.updateUI()
         event.Skip()
 
     def InputSingleScanURLButtonOnButtonClick(self, event):
+        self.commonInputTextEntryDialog(self.InputSingleScanURLButton, 'target', 'single_url',
+                                        self.const_msg_ShowSingleUrl, self.const_input_Url)
         event.Skip()
 
     def InputSingleScanURLButtonOnEnterWindow(self, event):
+        self.commonButtonSetLabel('target', 'single_url', self.InputSingleScanURLButton,
+                                  self.const_label_show_or_modify, self.const_label_add)
         event.Skip()
 
     def InputSingleScanURLButtonOnLeaveWindow(self, event):
+        self.commonButtonSetLabel('target', 'single_url', self.InputSingleScanURLButton,
+                                  self.const_label_not_null, self.const_label_null)
         event.Skip()
 
     def MultiURLRadioOnRadioButton(self, event):
+        self.radioGroupUpdate(self.radioGroup_url, 1)
+        self.updateUI()
         event.Skip()
 
     def InputURLFromFileButtonOnButtonClick(self, event):
+        self.commonInputFileDialog(self.InputURLFromFileButton, 'target', 'url_from_file', '待扫描URL')
         event.Skip()
 
     def InputURLFromFileButtonOnEnterWindow(self, event):
+        self.commonButtonSetLabel('target', 'url_from_file', self.InputSingleScanURLButton,
+                                  self.const_label_show_or_modify, self.const_label_add)
         event.Skip()
 
     def InputURLFromFileButtonOnLeaveWindow(self, event):
+        self.commonButtonSetLabel('target', 'url_from_file', self.InputSingleScanURLButton, self.const_label_not_null,
+                                  self.const_label_no_input)
         event.Skip()
 
     def IsUserCookiesOnCheckBox(self, event):
+        self.simpleEnableLink(self.IsUserCookies, self.InputUserCookiesButton, 'useCookies')
         event.Skip()
 
     def InputUserCookiesOnButtonClick(self, event):
+        self.commonInputTextEntryDialog(self.InputUserCookiesButton, 'run', 'useCookies',
+                                        self.const_msg_ShowCookies, self.const_input_Cookies)
         event.Skip()
 
     def InputUserCookiesOnEnterWindow(self, event):
+        self.commonButtonSetLabel('run', 'useCookies', self.InputUserCookiesButton,
+                                  self.const_label_show_or_modify, self.const_label_add)
         event.Skip()
 
     def InputUserCookiesOnLeaveWindow(self, event):
+        self.commonButtonSetLabel('run', 'useCookies', self.InputUserCookiesButton,
+                                  self.const_label_not_null, self.const_label_null)
         event.Skip()
 
     def SingleIPRadioOnRadioButton(self, event):
+        self.radioGroupUpdate(self.radioGroup_ip, 0)
+        self.updateUI()
         event.Skip()
 
     def InputSingleScanIPButtonOnButtonClick(self, event):
+        self.commonInputTextEntryDialog(self.InputSingleScanIPButton, 'target', 'single_ip',
+                                        self.const_msg_ShowSingleIP, self.const_input_IP)
         event.Skip()
 
     def InputSingleScanIPButtonOnEnterWindow(self, event):
+        self.commonButtonSetLabel('target', 'single_ip', self.InputSingleScanIPButton,
+                                  self.const_label_show_or_modify, self.const_label_add)
         event.Skip()
 
     def InputSingleScanIPButtonOnLeaveWindow(self, event):
+        self.commonButtonSetLabel('target', 'single_ip', self.InputSingleScanIPButton,
+                                  self.const_label_not_null, self.const_label_null)
         event.Skip()
 
     def MultiIPRadioOnRadioButton(self, event):
+        self.radioGroupUpdate(self.radioGroup_ip, 1)
+        self.updateUI()
         event.Skip()
 
     def InputIPAddressFromFilePathButtonOnButtonClick(self, event):
+        self.commonInputFileDialog(self.InputIPAddressFromFilePathButton, 'target', 'ip_from_file', '待扫描IP')
         event.Skip()
 
     def InputIPAddressFromFilePathButtonOnEnterWindow(self, event):
+        self.commonButtonSetLabel('target', 'ip_from_file', self.InputIPAddressFromFilePathButton,
+                                  self.const_label_show_or_modify, self.const_label_add)
         event.Skip()
 
     def InputIPAddressFromFilePathButtonOnLeaveWindow(self, event):
+        self.commonButtonSetLabel('target', 'ip_from_file', self.InputIPAddressFromFilePathButton,
+                                  self.const_label_not_null, self.const_label_no_input)
         event.Skip()
 
     def DontSaveLogRadioOnRadioButton(self, event):
+        self.radioGroupUpdate(self.radioGroup_log, 0)
+        self.updateUI()
         event.Skip()
 
     def DefaultSaveLogRadioOnRadioButton(self, event):
+        self.radioGroupUpdate(self.radioGroup_log, 1)
+        self.updateUI()
         event.Skip()
 
     def UseUserLogPathRadioOnRadioButton(self, event):
+        self.radioGroupUpdate(self.radioGroup_log, 2)
+        self.updateUI()
         event.Skip()
 
     def InputUserLogPathButtonOnButtonClick(self, event):
+        self.commonInputFileDialog(self.InputUserLogPathButton, 'run', 'useLogPath', '扫描日志', 'save')
         event.Skip()
 
     def InputUserLogPathButtonOnEnterWindow(self, event):
+        self.commonButtonSetLabel('run', 'useLogPath', self.InputUserLogPathButton,
+                                  self.const_label_show_or_modify, self.const_label_add)
         event.Skip()
 
     def InputUserLogPathButtonOnLeaveWindow(self, event):
+        self.commonButtonSetLabel('run', 'useLogPath', self.InputUserLogPathButton,
+                                  self.const_label_not_null, self.const_label_no_config)
         event.Skip()
 
     def LiveDetectOptionsOnRadioBox(self, event):
+        self.updateUI()
         event.Skip()
 
     def IsShowLogAfterExecuteOnCheckBox(self, event):
+        self.global_enable_config['showLogAfterFinish'] = self.IsShowLogAfterExecute.GetValue()
         event.Skip()
 
     def IsForceTimeoutOnCheckBox(self, event):
+        self.simpleEnableLink(self.IsForceTimeout, self.InputForceTimeoutSecondsTextEntry, 'forceExecuteTimeout')
         event.Skip()
 
     def InputForceTimeoutSecondsTextEntryOnKillFocus(self, event):
+        self.commonTextEntryOnKillFocus('forceExecuteTimeout', self.InputForceTimeoutSecondsTextEntry)
         event.Skip()
 
     def NoProxyRadioOnRadioButton(self, event):
+        self.radioGroupUpdate(self.radioGroup_proxy, 0)
+        self.updateUI()
         event.Skip()
 
     def UseSystemProxyRadioOnRadioButton(self, event):
+        self.radioGroupUpdate(self.radioGroup_proxy, 1)
+        self.updateUI()
         event.Skip()
 
     def UseUserProxyRadioOnRadioButton(self, event):
+        self.radioGroupUpdate(self.radioGroup_proxy, 2)
+        self.updateUI()
         event.Skip()
 
     def InputUserProxyButtonOnButtonClick(self, event):
+        self.commonInputTextEntryDialog(self.InputUserProxyButton, 'run', 'useUserProxy',
+                                        self.const_msg_ShowProxy, self.const_input_Proxy)
         event.Skip()
 
     def InputUserProxyButtonOnEnterWindow(self, event):
+        self.commonButtonSetLabel('run', 'useUserProxy', self.InputUserProxyButton,
+                                  self.const_label_show_or_modify, self.const_label_add)
         event.Skip()
 
     def InputUserProxyButtonOnLeaveWindow(self, event):
+        self.commonButtonSetLabel('run', 'useUserProxy', self.InputUserProxyButton,
+                                  self.const_label_not_null, self.const_label_no_config)
         event.Skip()
 
     def IsSpecialSMBDomainOnCheckBox(self, event):
+        self.simpleEnableLink(self.IsSpecialSMBDomain, self.InputSpecialDomainSMBButton, 'smbDomain')
         event.Skip()
 
     def InputSpecialDomainSMBButtonOnButtonClick(self, event):
+        self.commonInputTextEntryDialog(self.InputSpecialDomainSMBButton, 'run', 'smbDomain',
+                                        self.const_msg_ShowSMBDomain, self.const_input_SMBDomain)
         event.Skip()
 
     def InputSpecialDomainSMBButtonOnEnterWindow(self, event):
+        self.commonButtonSetLabel('run', 'smbDomain', self.InputSpecialDomainSMBButton,
+                                  self.const_label_show_or_modify, self.const_label_add)
         event.Skip()
 
     def InputSpecialDomainSMBButtonOnLeaveWindow(self, event):
+        self.commonButtonSetLabel('run', 'smbDomain', self.InputSpecialDomainSMBButton,
+                                  self.const_label_not_null, self.const_label_null)
         event.Skip()
 
     def IsInputUserNameFromFileOnCheckBox(self, event):
+        self.simpleEnableLink(self.IsInputUserNameFromFile, self.InputUserFromFileButton, 'useUserBook')
         event.Skip()
 
     def InputUserFromFileButtonOnButtonClick(self, event):
+        self.commonInputFileDialog(self.InputUserFromFileButton, 'run', 'useUserBook', '用户字典')
         event.Skip()
 
     def InputUserFromFileButtonOnEnterWindow(self, event):
+        self.commonButtonSetLabel('run', 'smbDomain', self.InputUserFromFileButton,
+                                  self.const_label_show_or_modify, self.const_label_add)
         event.Skip()
 
     def InputUserFromFileButtonOnLeaveWindow(self, event):
+        self.commonButtonSetLabel('run', 'smbDomain', self.InputUserFromFileButton,
+                                  self.const_label_not_null, self.const_label_no_input)
         event.Skip()
 
     def IsInputPasswdFromFileOnCheckBox(self, event):
+        self.simpleEnableLink(self.IsInputPasswdFromFile, self.InputPasswdFromFileButton, 'usePasswdBook')
         event.Skip()
 
     def InputPasswdFromFileButtonOnButtonClick(self, event):
+        self.commonInputFileDialog(self.InputPasswdFromFileButton, 'run', 'usePasswdBook', '密码字典')
         event.Skip()
 
     def InputPasswdFromFileButtonOnEnterWindow(self, event):
+        self.commonButtonSetLabel('run', 'usePasswdBook', self.InputPasswdFromFileButton,
+                                  self.const_label_show_or_modify, self.const_label_add)
         event.Skip()
 
     def InputPasswdFromFileButtonOnLeaveWindow(self, event):
+        self.commonButtonSetLabel('run', 'usePasswdBook', self.InputPasswdFromFileButton,
+                                  self.const_label_not_null, self.const_label_no_input)
         event.Skip()
 
     def IsSSHCommandAfterSuccessOnCheckBox(self, event):
+        self.simpleEnableLink(self.IsSSHCommandAfterSuccess, self.InputSSHCommand, 'remoteSSHCommand')
         event.Skip()
 
     def InputSSHCommandOnButtonClick(self, event):
+        self.commonInputTextEntryDialog(self.InputSSHCommand, 'run', 'remoteSSHCommand',
+                                        self.const_msg_ShowSSHCommand, self.const_input_SSHCommand)
         event.Skip()
 
     def InputSSHCommandOnEnterWindow(self, event):
+        self.commonButtonSetLabel('run', 'remoteSSHCommand', self.InputSSHCommand,
+                                  self.const_label_show_or_modify, self.const_label_add)
         event.Skip()
 
     def InputSSHCommandOnLeaveWindow(self, event):
+        self.commonButtonSetLabel('run', 'remoteSSHCommand', self.InputSSHCommand,
+                                  self.const_label_not_null, self.const_label_null)
         event.Skip()
 
     def IsPathAfterSuccessOnCheckBox(self, event):
+        self.simpleEnableLink(self.IsPathAfterSuccess, self.InputSMBOrFCGIPathButton, 'remotePath')
         event.Skip()
 
     def InputSMBOrFCGIPathButtonOnButtonClick(self, event):
+        self.commonInputTextEntryDialog(self.InputSMBOrFCGIPathButton, 'run', 'remotePath',
+                                        self.const_msg_ShowRemotePath, self.const_input_RemotePath)
         event.Skip()
 
     def InputSMBOrFCGIPathButtonOnEnterWindow(self, event):
+        self.commonButtonSetLabel('run', 'remotePath', self.InputSMBOrFCGIPathButton,
+                                  self.const_label_show_or_modify, self.const_label_add)
         event.Skip()
 
     def InputSMBOrFCGIPathButtonOnLeaveWindow(self, event):
+        self.commonButtonSetLabel('run', 'remotePath', self.InputSMBOrFCGIPathButton,
+                                  self.const_label_show_or_modify, self.const_label_no_config)
         event.Skip()
 
     def IsSpecialPOCScanSpeedOnCheckBox(self, event):
+        self.simpleEnableLink(self.IsSpecialPOCScanSpeed, self.InputPOCScanSpeedTextEntry, 'pocScanSpeed')
         event.Skip()
 
     def InputPOCScanSpeedTextEntryOnKillFocus(self, event):
+        self.commonTextEntryOnKillFocus('pocScanSpeed', self.InputPOCScanSpeedTextEntry)
         event.Skip()
 
     def IsNoPOCModeOnCheckBox(self, event):
+        self.global_run_config['noPOCScan'] = self.IsNoPOCMode.GetValue()
+        self.updateUI()
         event.Skip()
 
     def IsNoBruteExploitOnCheckBox(self, event):
+        self.global_run_config['noPasswdBrute'] = self.IsNoPOCMode.GetValue()
+        self.updateUI()
         event.Skip()
 
     def IsEnableRedisHackOnCheckBox(self, event):
+        if self.IsEnableRedisHack.GetValue():
+            self.InputSSHPublicKeyButton.Enable()
+            self.InputSSHPrivateKeyButton.Enable()
+            self.InputShellIPAndPortButton.Enable()
+        else:
+            self.InputSSHPublicKeyButton.Disable()
+            self.InputSSHPrivateKeyButton.Disable()
+            self.InputShellIPAndPortButton.Disable()
+        self.global_enable_config['useRedis'] = self.IsEnableRedisHack.GetValue()
+        self.updateUI()
         event.Skip()
 
     def InputSSHPublicKeyButtonOnButtonClick(self, event):
+        self.commonInputFileDialog(self.InputSSHPublicKeyButton, 'run', 'redisPubKeyPath', 'SSH公钥')
         event.Skip()
 
     def InputSSHPublicKeyButtonOnEnterWindow(self, event):
+        self.commonButtonSetLabel('run', 'redisPubKeyPath', self.InputSSHPublicKeyButton,
+                                  self.const_label_show_or_modify, self.const_label_add)
         event.Skip()
 
     def InputSSHPublicKeyButtonOnLeaveWindow(self, event):
+        self.commonButtonSetLabel('run', 'redisPubKeyPath', self.InputSSHPublicKeyButton,
+                                  'SSH公钥（已导入）', 'SSH公钥')
         event.Skip()
 
-    def InputSSHPrivaryKeyButtonOnButtonClick(self, event):
+    def InputSSHPrivateKeyButtonOnButtonClick(self, event):
+        self.commonInputFileDialog(self.InputSSHPrivateKeyButton, 'run', 'redisPriKeyPath', 'SSH私钥')
         event.Skip()
 
-    def InputSSHPrivaryKeyButtonOnEnterWindow(self, event):
+    def InputSSHPrivateKeyButtonOnEnterWindow(self, event):
+        self.commonButtonSetLabel('run', 'redisPriKeyPath', self.InputSSHPrivateKeyButton,
+                                  self.const_label_show_or_modify, self.const_label_add)
         event.Skip()
 
-    def InputSSHPrivaryKeyButtonOnLeaveWindow(self, event):
+    def InputSSHPrivateKeyButtonOnLeaveWindow(self, event):
+        self.commonButtonSetLabel('run', 'redisPriKeyPath', self.InputSSHPrivateKeyButton,
+                                  'SSH私钥（已导入）', 'SSH私钥')
         event.Skip()
 
     def InputShellIPAndPortButtonOnButtonClick(self, event):
+        self.commonInputTextEntryDialog(self.InputShellIPAndPortButton, 'run', 'redisShellIPAddress',
+                                        self.const_msg_ShowNCShell, self.const_input_nc_Shell)
         event.Skip()
 
     def InputShellIPAndPortButtonOnEnterWindow(self, event):
+        self.commonButtonSetLabel('run', 'redisShellIPAddress', self.InputShellIPAndPortButton,
+                                  self.const_label_show_or_modify, self.const_label_add)
         event.Skip()
 
     def InputShellIPAndPortButtonOnLeaveWindow(self, event):
+        self.commonButtonSetLabel('run', 'redisShellIPAddress', self.InputShellIPAndPortButton,
+                                  'Shell->' + self.global_run_config['redisShellIPAddress'], '输入NC反弹IP和端口')
         event.Skip()
