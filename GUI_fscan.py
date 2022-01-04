@@ -63,6 +63,7 @@ class GUI_fscan(wx.Frame):
         self.SetFont(
             wx.Font(wx.NORMAL_FONT.GetPointSize(), wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL,
                     False, wx.EmptyString))
+        self.SetBackgroundColour(wx.Colour(226, 250, 201))
 
         bSizer1 = wx.BoxSizer(wx.VERTICAL)
 
@@ -317,7 +318,7 @@ class GUI_fscan(wx.Frame):
         self.MultiIPRadio = wx.RadioButton(sbSizer8.GetStaticBox(), wx.ID_ANY, u"从文件导入IP", wx.DefaultPosition,
                                            wx.DefaultSize, 0)
         self.MultiIPRadio.SetFont(
-            wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, wx.EmptyString))
+            wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, wx.EmptyString))
 
         gSizer5.Add(self.MultiIPRadio, 0, wx.ALL | wx.EXPAND, 5)
 
@@ -946,7 +947,7 @@ class GUI_fscan(wx.Frame):
             return
         self.fscan_version = ''
         runResult = subprocess.run('"%s" --version' % self.fscan_execute_path, capture_output=True,
-                                   encoding='UTF-8')
+                                   encoding='UTF-8', shell=True)
         # 这应该很快就结束，--version实际上不能为fscan所识别
         # 由于非正常终止，程序返回了出错代码（测试时为2）
         for line in runResult.stderr.splitlines():
@@ -969,7 +970,7 @@ class GUI_fscan(wx.Frame):
         self.Enable()
         # 快照建立完成，现在可以释放了
         try:
-            tVar = subprocess.run(command_str, capture_output=showLogAfterFinish, timeout=forceTimeout,
+            tVar = subprocess.run(command_str, capture_output=True, timeout=forceTimeout, shell=True,
                                   encoding='UTF-8')
             if showLogAfterFinish:
                 if tVar.returncode == 0:
